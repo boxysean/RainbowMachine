@@ -6,7 +6,7 @@
 
 LPD8806 light painting engine that streams data from a computer to an Arduino at a high rate to display high resolution images. Streaming overcomes the space limitations of the Arduino.
 
-We mounted our LED strip on a bar that rotates 180 degrees orthogonal to the ground, making it devilishly simple to make a rainbow. We have people sit in front of it and take their photo. [More...](http://www.therainbowmachine.com/)
+We mounted our LED strip on a bar that rotates 180 degrees orthogonal to the ground, making it devilishly simple to make a rainbow. We have people sit in front of it and take their photos. [More...](http://www.therainbowmachine.com/)
 
 ## Installation Instructions
 
