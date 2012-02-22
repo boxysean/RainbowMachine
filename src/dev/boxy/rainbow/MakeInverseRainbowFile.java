@@ -14,7 +14,12 @@ public class MakeInverseRainbowFile {
 	public static int[] dc = { -1, -1, 0, 1, 1, 1, 0, -1, -1, 0, 1, 2, 2, 2, 1, 0, -1, -2, -2, -2 };
 
 	public static void main(String[] args) throws Exception {
-		BufferedImage img = ImageIO.read(new File(args[0]));
+		String fileName = args[0];
+		String outputFileName = args[1];
+		int outputHeight = RainbowUtils.getInt(args, 2, OUTPUT_HEIGHT);
+		int outputWidth = RainbowUtils.getInt(args, 3, OUTPUT_WIDTH);
+
+		BufferedImage img = ImageIO.read(new File(fileName));
 		int width = img.getWidth();
 		int height = img.getHeight();
 
@@ -116,7 +121,9 @@ public class MakeInverseRainbowFile {
 			}
 		}
 
-		OutputStream out = new BufferedOutputStream(new FileOutputStream(args[1]));
+		DataOutputStream out = new DataOutputStream(new FileOutputStream(outputFileName));
+		out.writeShort(outputWidth);
+		out.writeShort(outputHeight);
 		out.write(output, 0, output.length);
 		out.flush();
 		out.close();
