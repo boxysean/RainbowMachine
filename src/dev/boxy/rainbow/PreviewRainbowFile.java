@@ -8,12 +8,14 @@ public class PreviewRainbowFile extends PApplet {
 
 	public static String[] args;
 	
-	public static final int ROWS = 78;
-	public static final int COLS = 300;
+	public static final int DEFAULT_ROWS = 66;
+	public static final int DEFAULT_COLS = 300;
 	
-	public static final int HEIGHT = 400;
+	public static final int PREVIEW_HEIGHT = 400;
 	
-	public int video[][] = new int[ROWS][COLS];
+	public int video[][];
+	public int rows;
+	public int cols;
 	
 	public void setup() {
 		try {
@@ -36,10 +38,10 @@ public class PreviewRainbowFile extends PApplet {
 				color(48, 0, 155)
 		};
 		
-		for (int r = 0; r < ROWS; r++) {
-			int colourIdx = (int) (colours.length * (float) r / ROWS);
+		for (int r = 0; r < rows; r++) {
+			int colourIdx = (int) (colours.length * (float) r / rows);
 			
-			for (int c = 0; c < COLS; c++) {
+			for (int c = 0; c < cols; c++) {
 				int colour = color(colours[colourIdx]);
 				float red = red(colour) * 2;
 				float green = green(colour) * 2;
@@ -52,6 +54,11 @@ public class PreviewRainbowFile extends PApplet {
 	
 	public void loadDat(String fileName) throws Exception {
 		DataInputStream in = new DataInputStream(new FileInputStream(fileName));
+		
+		cols = in.readShort();
+		rows = in.readShort();
+		
+		video = new int[rows][cols];
 		
 		int r = 0;
 		int c = 0;
@@ -66,7 +73,7 @@ public class PreviewRainbowFile extends PApplet {
 				
 				r++;
 				
-				if (r == ROWS) {
+				if (r == rows) {
 					r = 0;
 					c++;
 				}
@@ -77,8 +84,8 @@ public class PreviewRainbowFile extends PApplet {
 	}
 	
 	public void showLinear() {
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
 				stroke(video[r][c]);
 				line(c, r, c+1, r);
 			}
@@ -92,12 +99,12 @@ public class PreviewRainbowFile extends PApplet {
 		translate(width / 2, 3 * height / 4);
 		rotate(PI / 2);
 		
-		for (int c = 0; c < COLS; c++) {
-			rotate(PI / COLS);
-			for (int r = 0; r < ROWS; r++) {
-				stroke(video[ROWS - r - 1][c]);
+		for (int c = 0; c < cols; c++) {
+			rotate(PI / cols);
+			for (int r = 0; r < rows; r++) {
+				stroke(video[rows - r - 1][c]);
 				strokeWeight(2f);
-				line(0, r + HEIGHT, 1, r + HEIGHT);
+				line(0, r + PREVIEW_HEIGHT, 1, r + PREVIEW_HEIGHT);
 			}
 		}
 		
@@ -109,19 +116,19 @@ public class PreviewRainbowFile extends PApplet {
 		resetMatrix();
 		translate(width/2, 3*height/4);
 		
-		for (int r = ROWS-1; r >= 0; r--) {
-			float radius = (float) r / ROWS * HEIGHT;
+		for (int r = rows-1; r >= 0; r--) {
+			float radius = (float) r / rows * PREVIEW_HEIGHT;
 			
-			for (int c = 0; c < COLS; c++) {
-				float x = (2 * (ROWS-r)) * (float) -Math.cos(Math.PI * ((double) c / (COLS)));
-				float y = (2 * (ROWS-r)) * (float) -Math.sin(Math.PI * ((double) c / (COLS)));
+			for (int c = 0; c < cols; c++) {
+				float x = (2 * (rows-r)) * (float) -Math.cos(Math.PI * ((double) c / (cols)));
+				float y = (2 * (rows-r)) * (float) -Math.sin(Math.PI * ((double) c / (cols)));
 //				System.out.printf("(%.1f, %.1f)\n", x, y);
 				
-				float rad1 = PI * c / COLS + PI;
-				float rad2 = PI * (c+1) / COLS + PI;
+				float rad1 = PI * c / cols + PI;
+				float rad2 = PI * (c+1) / cols + PI;
 				
 				noStroke();
-				fill(video[ROWS-r-1][c]);
+				fill(video[rows-r-1][c]);
 				
 				arc(0, 0, radius, radius, rad1, rad2);
 				

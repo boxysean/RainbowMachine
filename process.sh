@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -cp lib/RXTXcomm.jar:./bin dev.boxy.rainbow.MakeRainbowFile $1 $2
+java -cp lib/RXTXcomm.jar:./bin dev.boxy.rainbow.MakeRainbowFile $1 $2 $3 $4

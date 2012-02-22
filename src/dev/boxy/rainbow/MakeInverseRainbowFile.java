@@ -7,7 +7,7 @@ import javax.imageio.*;
 public class MakeInverseRainbowFile {
 
 	public static final int PIXEL_BUFFER = 0;
-	public static final int OUTPUT_HEIGHT = 78;
+	public static final int OUTPUT_HEIGHT = 66;
 	public static final int OUTPUT_WIDTH = 300;
 	
 	public static int[] dr = { 0, 1, 1, 1, 0, -1, -1, -1, -2, -2, -2, -1, 0, 1, 2, 2, 2, 1, 0, -1 };

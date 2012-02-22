@@ -25,22 +25,30 @@ public class RainbowEngine implements SerialPortEventListener {
 	// Baud rate agreed upon between Arduino and this program
 	private static final int DATA_RATE = 115200;
 
-	// Protocol messages
+	// Protocol messages to Arduino
 	private static final byte LINE = 1;
 	private static final byte FLUSH = 2;
 	private static final byte LINE_LENGTH = 3;
 	
+	// Protocol messages from Arduino
+	private static final byte MESSAGE = 1;
+	private static final byte START_LINE = 2;
+	
 	// Number of LEDs on the strip
-	private static final int LEDS = 78;
+	private static final int LEDS = 66;
 	
 	// Adjust this number to find a rate that the Arduino can keep up with. Lower is faster.
 	private static final int MS_SLEEP_BETWEEN_FRAMES = 5;
 	
 	// To keep track of FPS, set to true and it will print in the console
 	private static final boolean SHOW_FPS = false;
-
+	
 	// A key feature is that this is <= 256 bytes so the serial buffer on the Arduino does not overflow!!!
 	private static final int SIZE = LEDS * 3;
+
+	public static boolean startLine = false;
+	public static byte[] msgBuffer;
+	public static boolean started = false;
 
 	public void initialize() {
 		CommPortIdentifier portId = null;
@@ -104,10 +112,14 @@ public class RainbowEngine implements SerialPortEventListener {
 				String line;
 				
 				while ((line = input.readLine()) != null) {
-					System.out.println("LINE: " + line);
+					if (line.matches("^START$")) {
+						startLine = true;
+					} else {
+						System.out.println("LINE: " + line);
+					}
 				}
 			} catch (Exception e) {
-				System.err.println(e.toString());
+				e.printStackTrace();
 			}
 		}
 	}
@@ -129,7 +141,7 @@ public class RainbowEngine implements SerialPortEventListener {
 		output.write(new byte[] { LINE_LENGTH, (byte) SIZE });
 		output.flush();
 		
-		for (int i = 0; i < bytes.length; i += SIZE) {
+		for (int i = 4 /* 4 bytes at the beginning of the file */; i < bytes.length; i += SIZE) {
 			System.out.println("WRITING chunk " + i);
 
 			output.writeByte(LINE);
@@ -155,6 +167,8 @@ public class RainbowEngine implements SerialPortEventListener {
 		// Necessary sleep, otherwise will not work!
 		Thread.sleep(2000);
 		
+		started = true;
+		
 		int sends = 0;
 		System.out.println("Started");
 		long time = System.currentTimeMillis();
@@ -162,10 +176,13 @@ public class RainbowEngine implements SerialPortEventListener {
 		main.loadDat(args[0]);
 		
 		while (true) {
-			sends += main.sendOutDat();
-			if (SHOW_FPS) {
-				System.out.printf("time %d sends %d sends per second %.2f\n", time, sends, (double) sends / (time / 1000.0));
-			}
+//			if (startLine) {
+				startLine = false;
+				sends += main.sendOutDat();
+				if (SHOW_FPS) {
+					System.out.printf("time %d sends %d sends per second %.2f\n", time, sends, (double) sends / (time / 1000.0));
+				}
+//			}
 		}
 	}
 }

@@ -1,23 +1,36 @@
 package dev.boxy.rainbow;
-import javax.imageio.*;
-import java.io.*;
 import java.awt.image.*;
+import java.io.*;
+
+import javax.imageio.*;
 
 public class MakeRainbowFile {
 
-	public static final int PIXEL_BUFFER = 20;
-	public static final int OUTPUT_HEIGHT = 78;
-	public static final int OUTPUT_WIDTH = 300;
+	public static final int PIXEL_BUFFER = 0;
+	public static final int OUTPUT_HEIGHT = 66;
+	public static final int OUTPUT_WIDTH = 240;
 
 	public static void main(String[] args) throws Exception {
-		File f = new File(args[0]);
-		System.out.println(f.getAbsolutePath());
+		String fileName = args[0];
+		String outputFileName = args[1];
+		int outputHeight = RainbowUtils.getInt(args, 2, OUTPUT_HEIGHT);
+		int outputWidth = RainbowUtils.getInt(args, 3, OUTPUT_WIDTH);
+		
+		System.out.println("Input: " + fileName);
+		System.out.println("Output: " + outputFileName);
+		System.out.println("Rows: " + outputHeight);
+		System.out.println("Columns: " + outputWidth);
+		
+		File f = new File(fileName);
 		BufferedImage img = ImageIO.read(f);
 		int width = img.getWidth();
 		int height = img.getHeight();
+		
+		System.out.println("Image width: " + width);
+		System.out.println("Image height: " + height);
 
 		int[][] imgArray = new int[height][width];
-		byte[] output = new byte[OUTPUT_WIDTH * OUTPUT_HEIGHT * 3];
+		byte[] output = new byte[outputWidth * outputHeight * 3];
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
@@ -27,23 +40,23 @@ public class MakeRainbowFile {
 
 		// assume outWidth and outHeight < width and height
 
-		float widthRatio = (float) width / OUTPUT_WIDTH;
-		float heightRatio = (float) height / OUTPUT_HEIGHT;
+		float widthRatio = (float) width / outputWidth;
+		float heightRatio = (float) height / outputHeight;
 
 		int idx = 0;
 
-		for (int x = 0; x < OUTPUT_WIDTH; x++) {
+		for (int x = 0; x < outputWidth; x++) {
 			int x0 = Math.round(widthRatio * x);
 			int x1 = Math.round(widthRatio * (x+1));
-			for (int y = 0; y < OUTPUT_HEIGHT; y++) {
+			for (int y = 0; y < outputHeight; y++) {
 				int y0 = Math.round(heightRatio * y);
 				int y1 = Math.round(heightRatio * (y+1));
 				long r = 0;
 				long g = 0;
 				long b = 0;
 				int count = 0;
-				for (int yy = y0; yy < y1; yy++) {
-					for (int xx = x0; xx < x1; xx++) {
+				for (int yy = y0; yy <= y1 && yy < height; yy++) {
+					for (int xx = x0; xx <= x1 && xx < width; xx++) {
 						int rr = red(imgArray[yy][xx]) / 2;
 						int gg = green(imgArray[yy][xx]) / 2;
 						int bb = blue(imgArray[yy][xx]) / 2;
@@ -55,7 +68,7 @@ public class MakeRainbowFile {
 						count++;
 					}
 				}
-				if (y < OUTPUT_HEIGHT-PIXEL_BUFFER) {
+				if (y < outputHeight-PIXEL_BUFFER) {
 					output[idx++] = (byte) (r / count);
 					output[idx++] = (byte) (g / count);
 					output[idx++] = (byte) (b / count);
@@ -66,7 +79,9 @@ public class MakeRainbowFile {
 			}
 		}
 
-		OutputStream out = new BufferedOutputStream(new FileOutputStream(args[1]));
+		DataOutputStream out = new DataOutputStream(new FileOutputStream(outputFileName));
+		out.writeShort(outputWidth);
+		out.writeShort(outputHeight);
 		out.write(output, 0, output.length);
 		out.flush();
 		out.close();
@@ -83,5 +98,5 @@ public class MakeRainbowFile {
 	public static int blue(int x) {
 		return (x >> 0) & 0xFF;
 	}
-
+	
 }
